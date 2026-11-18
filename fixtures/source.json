@@ -1,0 +1,54 @@
+{
+  "scope": "A",
+  "resources": {
+    "/custodian/A": {
+      "body": {
+        "custodian": "A",
+        "originals": [
+          {
+            "id": "D1",
+            "href": "/custodian/A/records/D1"
+          }
+        ]
+      }
+    },
+    "/custodian/A/records/D1": {
+      "body": {
+        "document": "D1",
+        "custodian": "A",
+        "bill": "BL100",
+        "original": "ORIG1",
+        "holder": "出口公司",
+        "state": "active"
+      }
+    },
+    "/custodian/A/relations/D1": {
+      "body": {
+        "endorsements": [
+          {
+            "id": "E2",
+            "previous": "ORIG1",
+            "next": "ORIG2",
+            "from": "A",
+            "to": "B"
+          }
+        ],
+        "nextOriginal": "/custodian/B/ORIG2"
+      }
+    }
+  },
+  "portal": {
+    "identity": "document",
+    "records": {
+      "D1": {
+        "document": "D1",
+        "custodian": "A",
+        "bill": "BL100",
+        "original": "ORIG1",
+        "holder": "出口公司",
+        "state": "active"
+      }
+    },
+    "version": 1
+  }
+}
