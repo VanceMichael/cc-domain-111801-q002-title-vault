@@ -35,6 +35,16 @@
         ],
         "nextOriginal": "/custodian/B/ORIG2"
       }
+    },
+    "/custodian/B/ORIG2": {
+      "body": {
+        "document": "D2",
+        "custodian": "B",
+        "bill": "BL100",
+        "original": "ORIG2",
+        "holder": "进口公司",
+        "state": "active"
+      }
     }
   },
   "portal": {

@@ -7,7 +7,7 @@ import { SourceClient } from '../src/http.mjs';
 import { fixtureSource } from '../src/fixture-source.mjs';
 import { Archive } from '../src/archive.mjs';
 import { interpret } from '../src/interpret.mjs';
-import { assess } from '../src/receiving.mjs';
+import { assessChain } from '../src/receiving.mjs';
 import { collect, preview } from '../src/app.mjs';
 
 const raw = {"document": "D1", "custodian": "A", "bill": "BL100", "original": "ORIG1", "holder": "出口公司", "state": "active"};
@@ -22,9 +22,9 @@ test('解释来源业务字段并拒绝缺失身份', () => {
   assert.throws(() => interpret([]));
 });
 
-test('范围外记录不计入当前收件', () => {
-  assert.equal(assess(interpret(raw), [], scope).status, 'accepted');
-  assert.equal(assess(interpret(raw), [], 'another-scope').status, 'outside');
+test('范围外记录不计入当前收件，缺少交接依据不声明齐备', () => {
+  assert.equal(assessChain({ record: interpret(raw), scope, chain: null, target: null }).status, 'unverified');
+  assert.equal(assessChain({ record: interpret(raw), scope: 'another-scope', chain: null, target: null }).status, 'outside');
 });
 
 test('真实来源领取与重复收件保留单份原文依据', async () => {
@@ -54,9 +54,10 @@ test('来源一次暂时失败可重试，永久缺件不虚报完成', async ()
     source.fail("/custodian/A/records/D1", 503, 1);
     assert.equal((await collect(new SourceClient(source.url), archive, scope)).complete, true);
     source.replace("/custodian/A/records/D1", { status: 404, body: { error: '原件暂不存在' } });
+    source.replace("/custodian/B/ORIG2", { status: 404, body: { error: '原件暂不存在' } });
     const result = await collect(new SourceClient(source.url), archive, scope);
     assert.equal(result.complete, false);
-    assert.equal(result.outcomes[0].status, 'error');
+    assert.equal(result.outcomes[0].status, 'not-arrived');
     assert.equal(archive.records(scope).length, 1);
   } finally { archive.close(); await source.close(); await rm(directory, { recursive: true, force: true }); }
 });
